@@ -9,9 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class QuizActivity extends AppCompatActivity implements View.OnClickListener{
+public class QuizActivity extends AppCompatActivity{
     private Button mTrueButton;
     private Button mFalseButton;
+    private Button mPrevButton;
+    private Button mNextButton;
     private ImageView mResultImage;
     private TextView mQuestionText;
 
@@ -32,12 +34,42 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_quiz);
         mTrueButton = (Button)findViewById(R.id.true_button);
         mFalseButton = (Button)findViewById(R.id.false_button);
+        mPrevButton =(Button)findViewById(R.id.prev_button);
+        mNextButton = (Button)findViewById(R.id.next_button);
         mResultImage = (ImageView)findViewById(R.id.result_image);
         mQuestionText = (TextView)findViewById(R.id.quiz_text);
         updateQuestion();
 
-        mTrueButton.setOnClickListener(this);
-        mFalseButton.setOnClickListener(this);
+        mTrueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkAnswer(true);
+                updateQuestion();
+            }
+        });
+        mFalseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkAnswer(false);
+                updateQuestion();
+            }
+        });
+        mPrevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentIndex = (mCurrentIndex+mQuestionBank.length-1)%mQuestionBank.length;
+                mResultImage.setVisibility(View.INVISIBLE);
+                updateQuestion();
+            }
+        });
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
+                mResultImage.setVisibility(View.INVISIBLE);
+                updateQuestion();
+            }
+        });
     }
 
     private void updateQuestion(){
@@ -45,23 +77,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mQuestionText.setText(question);
     }
 
-    @Override
-    public void onClick(View v) {
-        boolean temp = false;
-        switch (v.getId()){
-            case R.id.true_button:
-                temp = true;
-                break;
-            case R.id.false_button:
-                temp = false;
-                break;
-        }
-        if(temp == mQuestionBank[mCurrentIndex].isCorrect()){
+
+    private void checkAnswer(boolean userAnswer) {
+        if (userAnswer == mQuestionBank[mCurrentIndex].isCorrect())
             mResultImage.setImageResource(R.drawable.correct);
-        }else{
+        else
             mResultImage.setImageResource(R.drawable.incorrect);
-        }
-        mCurrentIndex = (mCurrentIndex+1) % mQuestionBank.length;
-        updateQuestion();
+        mResultImage.setVisibility(View.VISIBLE);
     }
 }
